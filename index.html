@@ -1,0 +1,1414 @@
+<!doctype html>
+<html lang="id" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <title>Stok Dapur Roxwood</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              rox: {
+                50: "#f0fdf4",
+                100: "#dcfce7",
+                200: "#bbf7d0",
+                300: "#86efac",
+                400: "#4ade80",
+                500: "#22c55e",
+                600: "#16a34a",
+                700: "#15803d",
+                800: "#166534",
+                900: "#14532d",
+              },
+            },
+            fontFamily: { sans: ["Inter", "system-ui", "sans-serif"] },
+            screens: { xs: "375px" },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+      /* ── Base ── */
+      * {
+        -webkit-tap-highlight-color: transparent;
+        box-sizing: border-box;
+      }
+      body {
+        overscroll-behavior: none;
+      }
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        opacity: 1;
+      }
+
+      /* ── Safe area ── */
+      .safe-pb {
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      .safe-pt {
+        padding-top: env(safe-area-inset-top, 0px);
+      }
+
+      /* ── Toast ── */
+      .toast-enter {
+        animation: toastIn 0.3s ease forwards;
+      }
+      .toast-exit {
+        animation: toastOut 0.3s ease forwards;
+      }
+      @keyframes toastIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px) scale(0.96);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      @keyframes toastOut {
+        from {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+        to {
+          opacity: 0;
+          transform: translateY(10px) scale(0.96);
+        }
+      }
+
+      /* ── Aqua Modal ── */
+      #aqua-modal {
+        animation: fadeInBg 0.3s ease forwards;
+      }
+      #aqua-modal-box {
+        animation: slideUpBox 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      }
+      @keyframes fadeInBg {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes slideUpBox {
+        from {
+          opacity: 0;
+          transform: translateY(28px) scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      .aqua-pulse {
+        animation: aquaPulse 2.2s ease-in-out infinite;
+      }
+      @keyframes aquaPulse {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.1);
+          opacity: 0.8;
+        }
+      }
+
+      /* ── Stepper input ── */
+      .stepper-btn {
+        min-width: 48px;
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        font-size: 1.25rem;
+        font-weight: 700;
+        transition: all 0.15s ease;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      .stepper-btn:active {
+        transform: scale(0.9);
+        opacity: 0.8;
+      }
+      .stepper-val {
+        min-width: 64px;
+        text-align: center;
+        font-size: 1.25rem;
+        font-weight: 700;
+        border: none;
+        outline: none;
+        background: transparent;
+        color: inherit;
+      }
+
+      /* ── Card items for result ── */
+      .result-card {
+        border-radius: 16px;
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        transition: background 0.15s ease;
+      }
+      .result-card:active {
+        opacity: 0.75;
+      }
+
+      /* ── Set Panel (bottom sheet mobile, side panel desktop) ── */
+      #set-overlay {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+      #set-overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      /* Mobile: bottom sheet */
+      @media (max-width: 767px) {
+        #set-panel {
+          top: auto;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          max-width: 100%;
+          border-radius: 24px 24px 0 0;
+          border-left: none;
+          border-top: 1px solid;
+          transform: translateY(100%);
+          max-height: 92dvh;
+        }
+        #set-panel.open {
+          transform: translateY(0);
+        }
+        .set-drag-handle {
+          display: block;
+        }
+      }
+      /* Desktop: side panel */
+      @media (min-width: 768px) {
+        #set-panel {
+          top: 0;
+          right: 0;
+          bottom: 0;
+          width: 100%;
+          max-width: 480px;
+          border-radius: 0;
+          transform: translateX(100%);
+        }
+        #set-panel.open {
+          transform: translateX(0);
+        }
+        .set-drag-handle {
+          display: none;
+        }
+      }
+      #set-panel {
+        position: fixed;
+        z-index: 901;
+        background: white;
+        border-color: #e2e8f0;
+        box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.12);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .dark #set-panel {
+        background: #0f172a;
+        border-color: #1e293b;
+      }
+      .set-drag-handle {
+        display: none;
+        width: 40px;
+        height: 4px;
+        border-radius: 2px;
+        background: #cbd5e1;
+        margin: 10px auto 0;
+        flex-shrink: 0;
+      }
+      .dark .set-drag-handle {
+        background: #334155;
+      }
+
+      /* ── Bottom nav ── */
+      #bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 40;
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-top: 1px solid #e2e8f0;
+        padding-bottom: env(safe-area-inset-bottom, 12px);
+      }
+      .dark #bottom-nav {
+        background: rgba(15, 23, 42, 0.92);
+        border-color: #1e293b;
+      }
+
+      /* ── Segment control ── */
+      .seg-btn {
+        flex: 1;
+        padding: 8px 4px;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-align: center;
+        color: #64748b;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      .seg-btn.active {
+        color: #16a34a;
+        background: white;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+      }
+      .dark .seg-btn.active {
+        color: #4ade80;
+        background: #1e293b;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+      }
+      .dark .seg-btn {
+        color: #64748b;
+      }
+
+      /* ── Section tabs (mobile view switch) ── */
+      .tab-btn {
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        white-space: nowrap;
+        transition: all 0.18s ease;
+        color: #64748b;
+        cursor: pointer;
+      }
+      .tab-btn.active {
+        background: #16a34a;
+        color: white;
+        box-shadow: 0 2px 8px rgba(22, 163, 74, 0.35);
+      }
+      .dark .tab-btn {
+        color: #64748b;
+      }
+      .dark .tab-btn.active {
+        background: #16a34a;
+      }
+      #tab-bar {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      #tab-bar::-webkit-scrollbar {
+        display: none;
+      }
+
+      /* ── Stok input card ── */
+      .input-card {
+        border-radius: 16px;
+        padding: 14px 16px;
+        border: 1.5px solid #e2e8f0;
+        background: white;
+        transition:
+          border-color 0.2s ease,
+          box-shadow 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .dark .input-card {
+        background: #1e293b;
+        border-color: #334155;
+      }
+      .input-card:focus-within {
+        border-color: #22c55e;
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.12);
+      }
+      .input-card .ic-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #64748b;
+        flex: 1;
+      }
+      .dark .input-card .ic-label {
+        color: #94a3b8;
+      }
+
+      /* ── Haptic animation ── */
+      @keyframes tapPop {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(0.93);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      .tap-pop {
+        animation: tapPop 0.18s ease;
+      }
+
+      /* ── Scrollable main ── */
+      main {
+        padding-bottom: 100px;
+      }
+
+      /* ── Status badge ── */
+      .badge-ready {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        background: #dcfce7;
+        color: #15803d;
+      }
+      .badge-kurang {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+      .dark .badge-ready {
+        background: rgba(34, 197, 94, 0.15);
+        color: #4ade80;
+      }
+      .dark .badge-kurang {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+      }
+
+      /* ── Pull indicator ── */
+      #pull-indicator {
+        position: fixed;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 999;
+        padding: 6px 16px;
+        border-radius: 0 0 16px 16px;
+        background: #16a34a;
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 700;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 font-sans min-h-screen"
+  >
+    <!-- Pull refresh indicator -->
+    <div id="pull-indicator">↓ Tarik untuk refresh</div>
+
+    <!-- ── AQUA ALERT MODAL ── -->
+    <div
+      id="aqua-modal"
+      class="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4"
+      style="background: rgba(2, 8, 23, 0.65); backdrop-filter: blur(8px)"
+    >
+      <div
+        id="aqua-modal-box"
+        class="w-full sm:max-w-sm rounded-t-3xl sm:rounded-2xl bg-white dark:bg-slate-900 shadow-2xl border-t border-amber-200 dark:border-amber-800 overflow-hidden"
+      >
+        <div
+          class="w-10 h-1 bg-slate-300 dark:bg-slate-600 rounded-full mx-auto mt-3 sm:hidden"
+        ></div>
+        <div
+          class="h-1.5 w-full bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 mt-3 sm:mt-0"
+        ></div>
+        <div class="p-6 text-center pb-8">
+          <div
+            class="mx-auto mb-4 w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/60 dark:to-orange-900/60 flex items-center justify-center aqua-pulse"
+          >
+            <i
+              data-lucide="alert-triangle"
+              class="w-8 h-8 text-amber-500 dark:text-amber-400"
+            ></i>
+          </div>
+          <h2
+            class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-0.5"
+          >
+            Pemberitahuan Stok ⚠️
+          </h2>
+          <p
+            class="text-xs font-semibold text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-4"
+          ></p>
+          <div
+            class="rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 p-4 mb-5 text-left"
+          >
+            <p
+              class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed"
+            >
+              Kalkulator ini
+              <span class="font-bold text-amber-600 dark:text-amber-400"
+                >BELUM TERMASUK</span
+              >
+              bahan
+              <span class="font-bold text-amber-600 dark:text-amber-400"
+                >AKUA (min. 50)</span
+              >
+              dan
+              <span class="font-bold text-amber-600 dark:text-amber-400"
+                >SET TANI ROXWOOD</span
+              >.
+            </p>
+            <p
+              class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mt-2"
+            >
+              Silakan siapkan <strong>AKUA (min. 50)</strong> dan <strong>SET TANI ROXWOOD</strong> secara terpisah di luar perhitungan ini.
+            </p>
+          </div>
+          <button
+            id="aqua-modal-close"
+            type="button"
+            class="w-full py-4 px-6 rounded-2xl bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-bold text-base shadow-lg shadow-amber-600/30 transition-all active:scale-[.97]"
+          >
+            Mengerti, Mulai Hitung ✓
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SET PANEL OVERLAY ── -->
+    <div
+      id="set-overlay"
+      class="fixed inset-0 z-[900] bg-black/40 backdrop-blur-sm"
+      onclick="closeSetPanel()"
+    ></div>
+
+    <!-- ── SET PANEL ── -->
+    <div id="set-panel" class="dark:border-slate-800">
+      <div class="set-drag-handle"></div>
+
+      <!-- Panel Header -->
+      <div
+        class="flex-shrink-0 border-b border-slate-200 dark:border-slate-800"
+      >
+        <div
+          class="h-1 w-full bg-gradient-to-r from-rox-500 via-emerald-400 to-teal-500"
+        ></div>
+        <div class="px-5 py-4 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 rounded-xl bg-gradient-to-br from-rox-500/20 to-emerald-500/20 flex items-center justify-center flex-shrink-0"
+            >
+              <i
+                data-lucide="layers"
+                class="w-5 h-5 text-rox-600 dark:text-rox-400"
+              ></i>
+            </div>
+            <div>
+              <h2
+                class="font-bold text-base text-slate-800 dark:text-slate-100"
+              >
+                Kalkulator Set
+              </h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                Kebutuhan bahan untuk N set
+              </p>
+            </div>
+          </div>
+          <button
+            onclick="closeSetPanel()"
+            type="button"
+            class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 active:scale-90 transition-transform"
+          >
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- Set counter -->
+        <div class="px-5 pb-4">
+          <div
+            class="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
+          >
+            <span
+              class="text-sm font-semibold text-slate-600 dark:text-slate-300 flex-shrink-0"
+              >Jumlah Set</span
+            >
+            <div class="flex items-center gap-2 flex-1 justify-end">
+              <button
+                onclick="changeSet(-1)"
+                type="button"
+                class="w-11 h-11 rounded-xl bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center active:scale-90 transition-transform font-bold text-lg text-slate-600 dark:text-slate-300 shadow-sm"
+              >
+                −
+              </button>
+              <input
+                id="set-qty"
+                type="number"
+                min="1"
+                max="999"
+                value="1"
+                inputmode="numeric"
+                class="w-16 text-center py-2 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 text-xl font-bold focus:outline-none focus:ring-2 focus:ring-rox-500/50 focus:border-rox-500"
+                oninput="renderSetTable()"
+              />
+              <button
+                onclick="changeSet(1)"
+                type="button"
+                class="w-11 h-11 rounded-xl bg-rox-600 flex items-center justify-center active:scale-90 transition-transform font-bold text-lg text-white shadow-sm shadow-rox-600/30"
+              >
+                +
+              </button>
+            </div>
+            <span class="text-sm text-slate-400 flex-shrink-0">set</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel Body -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-3">
+        <div id="set-info-banner" class="hidden rounded-xl px-4 py-3"></div>
+        <div id="set-cards" class="space-y-2"></div>
+        <div
+          class="rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 p-4 space-y-3"
+        >
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">
+            Ringkasan
+          </p>
+          <div class="grid grid-cols-2 gap-3">
+            <div
+              class="rounded-xl bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 px-3 py-3"
+            >
+              <p class="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                Total Kebutuhan
+              </p>
+              <p
+                id="set-total-kebutuhan"
+                class="text-xl font-bold text-rox-600 dark:text-rox-400"
+              >
+                —
+              </p>
+            </div>
+            <div
+              class="rounded-xl bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 px-3 py-3"
+            >
+              <p class="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                Bahan Kurang
+              </p>
+              <p
+                id="set-total-kurang"
+                class="text-xl font-bold text-red-600 dark:text-red-400"
+              >
+                —
+              </p>
+            </div>
+          </div>
+        </div>
+        <div
+          class="flex items-center gap-2 px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900"
+        >
+          <i
+            data-lucide="alert-triangle"
+            class="w-4 h-4 text-amber-500 flex-shrink-0"
+          ></i>
+          <p class="text-xs font-bold text-amber-800 dark:text-amber-300">
+            BELUM TERMASUK AKUA (MIN. 50) &amp; SET TANI ROXWOOD
+          </p>
+        </div>
+      </div>
+
+      <!-- Panel Footer -->
+      <div
+        class="flex-shrink-0 px-4 py-4 border-t border-slate-200 dark:border-slate-800 safe-pb"
+      >
+        <button
+          onclick="closeSetPanel()"
+          type="button"
+          class="w-full py-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-semibold text-sm active:bg-slate-100 dark:active:bg-slate-800 transition-colors"
+        >
+          Tutup
+        </button>
+      </div>
+    </div>
+
+    <!-- ── TOAST ── -->
+    <div
+      id="toast-container"
+      class="fixed bottom-24 left-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"
+    ></div>
+
+    <!-- ── HEADER ── -->
+    <header
+      class="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800/80"
+    >
+      <div
+        class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3"
+      >
+        <div class="flex items-center gap-3 min-w-0">
+          <div
+            class="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-rox-500 to-emerald-700 flex items-center justify-center shadow-md shadow-rox-500/30"
+          >
+            <i data-lucide="chef-hat" class="w-4 h-4 text-white"></i>
+          </div>
+          <div class="min-w-0">
+            <h1 class="text-base font-bold leading-tight truncate">
+              Stok Dapur RX
+            </h1>
+            <p class="text-xs text-slate-500 dark:text-slate-400 leading-tight">
+              Manajemen Resep
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button
+            onclick="openSetPanel()"
+            type="button"
+            class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl bg-rox-600 text-white shadow-md shadow-rox-600/30 active:scale-95 transition-transform"
+          >
+            <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+            <span>N Set</span>
+          </button>
+          <button
+            id="theme-toggle"
+            type="button"
+            class="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 active:scale-90 transition-transform"
+          >
+            <i
+              data-lucide="sun"
+              class="w-4 h-4 hidden dark:block text-amber-400"
+            ></i>
+            <i
+              data-lucide="moon"
+              class="w-4 h-4 block dark:hidden text-slate-500"
+            ></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── MAIN ── -->
+    <main class="max-w-3xl mx-auto px-4 py-5 space-y-5">
+      <!-- SUMMARY CARDS -->
+      <section class="grid grid-cols-2 gap-3">
+        <div
+          class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-sm"
+        >
+          <div class="flex items-center gap-2 mb-2">
+            <div
+              class="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center"
+            >
+              <i
+                data-lucide="check-circle-2"
+                class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"
+              ></i>
+            </div>
+            <span class="text-xs text-slate-500 dark:text-slate-400 font-medium"
+              >Ready</span
+            >
+          </div>
+          <p
+            id="stat-ready"
+            class="text-3xl font-black text-emerald-600 dark:text-emerald-400"
+          >
+            0
+          </p>
+          <p class="text-xs text-slate-400 mt-0.5">bahan cukup</p>
+        </div>
+        <div
+          class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-sm"
+        >
+          <div class="flex items-center gap-2 mb-2">
+            <div
+              class="w-7 h-7 rounded-lg bg-red-100 dark:bg-red-900/40 flex items-center justify-center"
+            >
+              <i
+                data-lucide="alert-circle"
+                class="w-3.5 h-3.5 text-red-600 dark:text-red-400"
+              ></i>
+            </div>
+            <span class="text-xs text-slate-500 dark:text-slate-400 font-medium"
+              >Kurang</span
+            >
+          </div>
+          <p
+            id="stat-kurang"
+            class="text-3xl font-black text-red-600 dark:text-red-400"
+          >
+            0
+          </p>
+          <p class="text-xs text-slate-400 mt-0.5">perlu dibeli</p>
+        </div>
+        <div
+          class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-sm"
+        >
+          <div class="flex items-center gap-2 mb-2">
+            <div
+              class="w-7 h-7 rounded-lg bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center"
+            >
+              <i
+                data-lucide="shopping-cart"
+                class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400"
+              ></i>
+            </div>
+            <span class="text-xs text-slate-500 dark:text-slate-400 font-medium"
+              >Perlu Beli</span
+            >
+          </div>
+          <p
+            id="stat-beli"
+            class="text-3xl font-black text-amber-600 dark:text-amber-400"
+          >
+            0
+          </p>
+          <p class="text-xs text-slate-400 mt-0.5">jenis bahan</p>
+        </div>
+        <div
+          class="rounded-2xl bg-gradient-to-br from-rox-500/10 to-emerald-500/10 dark:from-rox-500/20 dark:to-emerald-500/20 border border-rox-200 dark:border-rox-900 p-4 shadow-sm"
+        >
+          <div class="flex items-center gap-2 mb-2">
+            <div
+              class="w-7 h-7 rounded-lg bg-rox-100 dark:bg-rox-900/40 flex items-center justify-center"
+            >
+              <i
+                data-lucide="package"
+                class="w-3.5 h-3.5 text-rox-600 dark:text-rox-400"
+              ></i>
+            </div>
+            <span class="text-xs text-slate-500 dark:text-slate-400 font-medium"
+              >Total Beli</span
+            >
+          </div>
+          <p
+            id="stat-total"
+            class="text-3xl font-black text-rox-600 dark:text-rox-400"
+          >
+            0
+          </p>
+          <p class="text-xs text-slate-400 mt-0.5">rekomendasi</p>
+        </div>
+      </section>
+
+      <!-- INPUT STOK -->
+      <section
+        class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden"
+      >
+        <div
+          class="px-4 py-3.5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between"
+        >
+          <div class="flex items-center gap-2">
+            <i
+              data-lucide="clipboard-list"
+              class="w-4 h-4 text-rox-600 dark:text-rox-400"
+            ></i>
+            <h2 class="text-sm font-bold">Input Stok Saat Ini</h2>
+          </div>
+          <button
+            id="btn-reset-top"
+            type="button"
+            class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-800 transition-colors"
+          >
+            <i data-lucide="rotate-ccw" class="w-3 h-3"></i> Reset
+          </button>
+        </div>
+        <div class="p-3">
+          <div id="stock-form" class="grid grid-cols-1 gap-2"></div>
+        </div>
+      </section>
+
+      <!-- SECTION TABS -->
+      <div id="tab-bar" class="flex gap-2 pb-1">
+        <button class="tab-btn active" data-tab="stok">📦 Stok Saat Ini</button>
+        <button class="tab-btn" data-tab="kebutuhan">🛒 Kebutuhan</button>
+        <button class="tab-btn" data-tab="resep">📋 Resep 1 Set Makanan</button>
+      </div>
+
+      <!-- RESULT: STOK TAB -->
+      <section id="tab-content-stok" class="space-y-2">
+        <div id="cards-stok" class="space-y-2">
+          <div class="text-center py-10 text-slate-400 text-sm">
+            Masukkan stok dan klik <strong>Hitung</strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- RESULT: KEBUTUHAN TAB -->
+      <section id="tab-content-kebutuhan" class="space-y-2 hidden">
+        <div id="cards-kebutuhan" class="space-y-2">
+          <div class="text-center py-10 text-slate-400 text-sm">
+            Masukkan stok dan klik <strong>Hitung</strong>
+          </div>
+        </div>
+        <!-- Shortcut ke panel set -->
+        <button
+          onclick="openSetPanel()"
+          type="button"
+          class="w-full py-3.5 rounded-2xl border-2 border-dashed border-rox-300 dark:border-rox-800 text-rox-600 dark:text-rox-400 font-semibold text-sm flex items-center justify-center gap-2 active:bg-rox-50 dark:active:bg-rox-950/30 transition-colors"
+        >
+          <i data-lucide="layers" class="w-4 h-4"></i>
+          Hitung untuk N Set →
+        </button>
+      </section>
+
+      <!-- RESULT: RESEP TAB -->
+      <section id="tab-content-resep" class="hidden">
+        <div id="recipe-ref" class="grid grid-cols-2 gap-2"></div>
+      </section>
+    </main>
+
+    <!-- ── BOTTOM NAV ── -->
+    <div id="bottom-nav" class="px-4 pt-3">
+      <div class="flex gap-2">
+        <button
+          id="btn-reset-bot"
+          type="button"
+          class="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold text-sm active:scale-[.97] transition-transform shadow-sm"
+        >
+          <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+          Reset
+        </button>
+        <button
+          id="btn-hitung"
+          type="button"
+          class="flex-[2.5] flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-rox-600 text-white font-bold text-sm active:scale-[.97] transition-transform shadow-lg shadow-rox-600/30"
+        >
+          <i data-lucide="calculator" class="w-4 h-4"></i>
+          Hitung Stok
+        </button>
+      </div>
+    </div>
+
+    <footer
+      class="max-w-3xl mx-auto px-4 py-5 text-center"
+      style="padding-bottom: 120px"
+    >
+      <p
+        class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-100 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700 text-amber-850 dark:text-amber-300 text-xs font-bold"
+      >
+        <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400"></i>
+        BELUM TERMASUK AKUA (MIN. 50) &amp; SET TANI ROXWOOD
+      </p>
+    </footer>
+
+    <script>
+      const RECIPE = {
+        zatkim: 20,
+        susu: 25,
+        ikan: 260,
+        ayam: 125,
+        sawit: 90,
+        bambu: 65,
+        daun: 50,
+        arang: 150,
+        lemak: 125,
+        buah: 100,
+        plastic: 35,
+      };
+      const LABELS = {
+        zatkim: "Zatkim",
+        susu: "Susu",
+        ikan: "Ikan",
+        ayam: "Ayam",
+        sawit: "Sawit",
+        bambu: "Bambu",
+        daun: "Daun",
+        arang: "Arang",
+        lemak: "Lemak",
+        buah: "Buah-buahan",
+        plastic: "Plastic",
+      };
+      const ICONS = {
+        zatkim: "flask-conical",
+        susu: "milk",
+        ikan: "fish",
+        ayam: "drumstick",
+        sawit: "leaf",
+        bambu: "trees",
+        daun: "leaf-2",
+        arang: "flame",
+        lemak: "droplet",
+        buah: "apple",
+        plastic: "package-2",
+      };
+      const FIXED_BELANJA = { sawit: 90, bambu: 65, daun: 100, buah: 100, plastic: 100 };
+      const STORAGE_KEY = "roxwood-stok",
+        THEME_KEY = "roxwood-theme";
+      const $ = (sel) => document.querySelector(sel);
+      let currentStock = {},
+        activeTab = "stok";
+
+      /* ── Aqua Modal ── */
+      function initAquaModal() {
+        const modal = $("#aqua-modal"),
+          btn = $("#aqua-modal-close");
+        function close() {
+          modal.style.transition = "opacity .25s ease";
+          modal.style.opacity = "0";
+          setTimeout(() => (modal.style.display = "none"), 260);
+        }
+        btn.addEventListener("click", close);
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) close();
+        });
+      }
+
+      /* ── Theme ── */
+      function initTheme() {
+        const s = localStorage.getItem(THEME_KEY);
+        const dark =
+          s === "dark" ||
+          (!s && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.classList.toggle("dark", dark);
+      }
+      function toggleTheme() {
+        const d = document.documentElement.classList.toggle("dark");
+        localStorage.setItem(THEME_KEY, d ? "dark" : "light");
+        showToast(d ? "Mode gelap aktif 🌙" : "Mode terang aktif ☀️", "info");
+        lucide.createIcons();
+      }
+
+      /* ── Tab system ── */
+      function switchTab(tab) {
+        activeTab = tab;
+        ["stok", "kebutuhan", "resep"].forEach((t) => {
+          const el = document.getElementById("tab-content-" + t);
+          if (el) el.classList.toggle("hidden", t !== tab);
+        });
+        document.querySelectorAll(".tab-btn").forEach((b) => {
+          b.classList.toggle("active", b.dataset.tab === tab);
+        });
+      }
+
+      /* ── Set Panel ── */
+      function openSetPanel() {
+        $("#set-panel").classList.add("open");
+        $("#set-overlay").classList.add("open");
+        document.body.style.overflow = "hidden";
+        renderSetTable();
+        lucide.createIcons();
+      }
+      function closeSetPanel() {
+        $("#set-panel").classList.remove("open");
+        $("#set-overlay").classList.remove("open");
+        document.body.style.overflow = "";
+      }
+      function changeSet(d) {
+        const el = $("#set-qty");
+        el.value = Math.max(1, Math.min(999, (parseInt(el.value) || 1) + d));
+        renderSetTable();
+      }
+      function renderSetTable() {
+        const n = Math.max(1, parseInt($("#set-qty").value) || 1);
+        let totalK = 0,
+          totalKurang = 0,
+          kurangCount = 0;
+        const cards = Object.keys(RECIPE)
+          .map((key) => {
+            const perSet = RECIPE[key],
+              total = perSet * n,
+              stok = currentStock[key] || 0;
+            const kurang = Math.max(0, total - stok);
+            totalK += total;
+            if (kurang > 0) {
+              totalKurang += kurang;
+              kurangCount++;
+            }
+            const hasShortage = kurang > 0;
+            return `<div class="flex items-center justify-between px-4 py-3 rounded-xl ${hasShortage ? "bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900" : "bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700"}">
+      <div>
+        <p class="text-sm font-semibold ${hasShortage ? "text-red-700 dark:text-red-300" : "text-slate-700 dark:text-slate-200"}">${LABELS[key]}</p>
+        <p class="text-xs text-slate-400 mt-0.5">Per set: ${perSet} &nbsp;·&nbsp; Stok: ${stok}</p>
+      </div>
+      <div class="text-right">
+        <p class="text-base font-black ${hasShortage ? "text-red-600 dark:text-red-400" : "text-rox-600 dark:text-rox-400"}">${total}</p>
+        ${hasShortage ? `<p class="text-xs text-red-500 font-semibold">kurang ${kurang}</p>` : `<p class="text-xs text-emerald-500 font-semibold">cukup ✓</p>`}
+      </div>
+    </div>`;
+          })
+          .join("");
+        $("#set-cards").innerHTML = cards;
+        $("#set-total-kebutuhan").textContent = totalK.toLocaleString("id-ID");
+        const kel = $("#set-total-kurang");
+        if (kurangCount === 0) {
+          kel.textContent = "Semua cukup ✓";
+          kel.className =
+            "text-xl font-bold text-emerald-600 dark:text-emerald-400";
+        } else {
+          kel.textContent = kurangCount + " bahan";
+          kel.className = "text-xl font-bold text-red-600 dark:text-red-400";
+        }
+
+        const banner = $("#set-info-banner");
+        if (Object.values(currentStock).every((v) => v === 0)) {
+          banner.classList.remove("hidden");
+          banner.className =
+            "rounded-xl px-4 py-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800";
+          banner.innerHTML = `<p class="text-xs font-semibold text-amber-700 dark:text-amber-400 flex items-center gap-2"><span>⚠️</span> Stok belum diisi — isi & hitung dulu di halaman utama.</p>`;
+        } else if (kurangCount === 0) {
+          banner.classList.remove("hidden");
+          banner.className =
+            "rounded-xl px-4 py-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800";
+          banner.innerHTML = `<p class="text-xs font-semibold text-emerald-700 dark:text-emerald-400">🎉 Stok cukup untuk membuat ${n} set!</p>`;
+        } else {
+          banner.classList.add("hidden");
+        }
+        lucide.createIcons();
+      }
+
+      /* ── Toast ── */
+      function showToast(msg, type) {
+        type = type || "success";
+        const colors = {
+          success: "bg-emerald-600",
+          error: "bg-red-600",
+          info: "bg-blue-600",
+          warning: "bg-amber-500",
+        };
+        const icons = {
+          success: "check",
+          error: "x",
+          info: "info",
+          warning: "alert-triangle",
+        };
+        const c = $("#toast-container");
+        const t = document.createElement("div");
+        t.className = `toast-enter pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-2xl text-white text-sm font-semibold shadow-xl ${colors[type]}`;
+        t.innerHTML = `<i data-lucide="${icons[type]}" class="w-4 h-4 flex-shrink-0"></i><span>${msg}</span>`;
+        c.appendChild(t);
+        lucide.createIcons();
+        setTimeout(() => {
+          t.classList.replace("toast-enter", "toast-exit");
+          setTimeout(() => t.remove(), 300);
+        }, 2800);
+      }
+
+      /* ── Build form (stepper cards) ── */
+      function buildForm() {
+        const form = $("#stock-form");
+        form.innerHTML = Object.keys(RECIPE)
+          .map(
+            (key) => `
+    <div class="input-card">
+      <div class="flex flex-col flex-1 min-w-0">
+        <span class="ic-label">${LABELS[key]}</span>
+        <span class="text-xs text-slate-400 dark:text-slate-500">Kebutuhan: ${RECIPE[key]}</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button type="button" onclick="stepInput('${key}',-1)"
+          class="stepper-btn bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-lg">−</button>
+        <input type="number" id="input-${key}" name="${key}" min="0" step="1" value="" inputmode="numeric"
+          placeholder="0"
+          class="w-14 text-center py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-base font-bold focus:outline-none focus:ring-2 focus:ring-rox-500/50 focus:border-rox-500"/>
+        <button type="button" onclick="stepInput('${key}',1)"
+          class="stepper-btn bg-rox-600 text-white text-lg shadow-sm shadow-rox-600/30">+</button>
+      </div>
+    </div>`,
+          )
+          .join("");
+      }
+
+      function stepInput(key, delta) {
+        const el = $("#input-" + key);
+        const cur = parseInt(el.value) || 0;
+        el.value = Math.max(0, cur + delta);
+        el.classList.add("tap-pop");
+        setTimeout(() => el.classList.remove("tap-pop"), 180);
+        // auto-debounce save
+        clearTimeout(window._stepDebounce);
+        window._stepDebounce = setTimeout(() => {
+          const s = getStock();
+          if (Object.values(s).some((v) => v > 0)) {
+            currentStock = { ...s };
+            saveStock(s);
+          }
+        }, 400);
+      }
+
+      function buildRecipeRef() {
+        $("#recipe-ref").innerHTML = Object.entries(RECIPE)
+          .map(
+            ([key, val]) => `
+    <div class="flex items-center justify-between px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+      <span class="text-sm font-medium text-slate-600 dark:text-slate-300">${LABELS[key]}</span>
+      <span class="text-base font-black text-rox-600 dark:text-rox-400">${val}</span>
+    </div>`,
+          )
+          .join("");
+      }
+
+      function getStock() {
+        const s = {};
+        for (const k of Object.keys(RECIPE)) {
+          const v = parseInt($("#input-" + k).value, 10);
+          s[k] = isNaN(v) || v < 0 ? 0 : v;
+        }
+        return s;
+      }
+      function setStock(s) {
+        for (const [k, v] of Object.entries(s)) {
+          const el = $("#input-" + k);
+          if (el) el.value = v;
+        }
+      }
+      function saveStock(s) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+      }
+      function loadStock() {
+        try {
+          const r = localStorage.getItem(STORAGE_KEY);
+          if (r) return JSON.parse(r);
+        } catch (_) {}
+        return null;
+      }
+
+      /* ── Calculate ── */
+      function calculate(stock) {
+        return Object.keys(RECIPE).map((key) => {
+          const kebutuhan = RECIPE[key],
+            stok = stock[key],
+            cukup = stok >= kebutuhan;
+          const kurang = Math.max(0, kebutuhan - stok),
+            sisa = stok - kebutuhan;
+          let beli = 0;
+          if (kurang > 0) {
+            if (key === "zatkim")
+              beli = Math.ceil(kurang / kebutuhan) * kebutuhan;
+            else if (key in FIXED_BELANJA) beli = FIXED_BELANJA[key];
+            else beli = Math.ceil(kurang / 50) * 50;
+          }
+          return {
+            key,
+            label: LABELS[key],
+            stok,
+            kebutuhan,
+            cukup,
+            sisa,
+            kurang,
+            beli,
+          };
+        });
+      }
+
+      /* ── Render cards ── */
+      function renderCards(results) {
+        // Stok cards
+        $("#cards-stok").innerHTML = results
+          .map(
+            (r) => `
+    <div class="result-card ${r.cukup ? "bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800" : "bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900"}">
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold ${r.cukup ? "text-slate-700 dark:text-slate-200" : "text-red-700 dark:text-red-300"} truncate">${r.label}</p>
+        <p class="text-xs text-slate-400 mt-0.5">Kebutuhan: ${r.kebutuhan}</p>
+      </div>
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <div class="text-right">
+          <p class="text-lg font-black ${r.cukup ? "text-slate-700 dark:text-slate-200" : "text-red-600 dark:text-red-400"}">${r.stok}</p>
+          <p class="text-xs text-slate-400">stok</p>
+        </div>
+        ${
+          r.cukup
+            ? '<span class="badge-ready"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>OK</span>'
+            : '<span class="badge-kurang">×KURANG</span>'
+        }
+      </div>
+    </div>`,
+          )
+          .join("");
+
+        // Kebutuhan cards
+        $("#cards-kebutuhan").innerHTML = results
+          .map((r) => {
+            const hasKurang = r.kurang > 0;
+            return `<div class="result-card ${hasKurang ? "bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900" : "bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800"}">
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold ${hasKurang ? "text-amber-800 dark:text-amber-200" : "text-slate-700 dark:text-slate-200"} truncate">${r.label}</p>
+        <p class="text-xs ${hasKurang ? "text-amber-600 dark:text-amber-400" : "text-slate-400"} mt-0.5">Sisa: ${r.sisa} · Butuh: ${r.kebutuhan}</p>
+      </div>
+      <div class="text-right flex-shrink-0">
+        ${
+          hasKurang
+            ? `<p class="text-sm font-black text-amber-600 dark:text-amber-400">Beli ${r.beli}</p>`
+            : `<p class="text-sm font-black text-emerald-600 dark:text-emerald-400">Cukup ✓</p>`
+        }
+      </div>
+    </div>`;
+          })
+          .join("");
+
+        // Append N-set button after cards-kebutuhan rebuilt
+        lucide.createIcons();
+      }
+
+      function renderSummary(results) {
+        const ready = results.filter((r) => r.cukup).length;
+        const kurang = results.filter((r) => !r.cukup).length;
+        const beli = results.filter((r) => r.beli > 0).length;
+        const total = results.reduce((s, r) => s + r.beli, 0);
+        $("#stat-ready").textContent = ready;
+        $("#stat-kurang").textContent = kurang;
+        $("#stat-beli").textContent = beli;
+        $("#stat-total").textContent = total.toLocaleString("id-ID");
+      }
+
+      /* ── Actions ── */
+      function hitung() {
+        const stock = getStock();
+        if (!Object.values(stock).some((v) => v > 0)) {
+          showToast("Masukkan minimal satu stok", "warning");
+          return;
+        }
+        currentStock = { ...stock };
+        saveStock(stock);
+        const results = calculate(stock);
+        renderCards(results);
+        renderSummary(results);
+        const rc = results.filter((r) => r.cukup).length;
+        if (rc === results.length)
+          showToast("Semua bahan READY! 🎉", "success");
+        else
+          showToast(
+            `${rc}/${results.length} ready — ${results.length - rc} masih kurang`,
+            "warning",
+          );
+        // Switch to kebutuhan tab to see results
+        switchTab("kebutuhan");
+        // Scroll to results
+        setTimeout(
+          () =>
+            document
+              .getElementById("tab-content-kebutuhan")
+              .scrollIntoView({ behavior: "smooth", block: "start" }),
+          100,
+        );
+      }
+      function resetForm() {
+        if (!confirm("Apakah Anda yakin ingin mereset semua data stok?")) {
+          return;
+        }
+        for (const k of Object.keys(RECIPE)) {
+          const el = $("#input-" + k);
+          if (el) el.value = "";
+        }
+        currentStock = {};
+        localStorage.removeItem(STORAGE_KEY);
+        ["cards-stok", "cards-kebutuhan"].forEach((id) => {
+          const el = document.getElementById(id);
+          if (el)
+            el.innerHTML =
+              '<div class="text-center py-10 text-slate-400 text-sm">Masukkan stok dan klik <strong>Hitung</strong></div>';
+        });
+        ["stat-ready", "stat-kurang", "stat-beli", "stat-total"].forEach(
+          (id) => ($("#" + id).textContent = "0"),
+        );
+        showToast("Data stok direset", "info");
+      }
+
+      /* ── Swipe to close set panel (mobile) ── */
+      function initSwipeClose() {
+        const panel = $("#set-panel");
+        let startY = 0,
+          startX = 0;
+        panel.addEventListener(
+          "touchstart",
+          (e) => {
+            startY = e.touches[0].clientY;
+            startX = e.touches[0].clientX;
+          },
+          { passive: true },
+        );
+        panel.addEventListener(
+          "touchend",
+          (e) => {
+            const dy = e.changedTouches[0].clientY - startY;
+            const dx = Math.abs(e.changedTouches[0].clientX - startX);
+            if (dy > 60 && dx < 40 && window.innerWidth < 768) closeSetPanel();
+          },
+          { passive: true },
+        );
+      }
+
+      /* ── Init ── */
+      function init() {
+        initTheme();
+        initAquaModal();
+        buildForm();
+        buildRecipeRef();
+        initSwipeClose();
+
+        const saved = loadStock();
+        if (saved) {
+          currentStock = { ...saved };
+          setStock(saved);
+          const results = calculate(saved);
+          renderCards(results);
+          renderSummary(results);
+        }
+
+        $("#theme-toggle").addEventListener("click", toggleTheme);
+        $("#btn-hitung").addEventListener("click", hitung);
+        $("#btn-reset-top").addEventListener("click", resetForm);
+        $("#btn-reset-bot").addEventListener("click", resetForm);
+        $("#set-qty").addEventListener("input", renderSetTable);
+
+        // Tab buttons
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+          btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+        });
+
+        // Keyboard
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") closeSetPanel();
+        });
+
+        // Debounced save on input
+        let db;
+        document.getElementById("stock-form").addEventListener("input", () => {
+          clearTimeout(db);
+          db = setTimeout(() => {
+            const s = getStock();
+            if (Object.values(s).some((v) => v > 0)) {
+              currentStock = { ...s };
+              saveStock(s);
+            }
+          }, 500);
+        });
+
+        lucide.createIcons();
+      }
+
+      document.addEventListener("DOMContentLoaded", init);
+    </script>
+  </body>
+</html>
